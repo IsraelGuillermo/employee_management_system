@@ -23,7 +23,7 @@ const firstQuestion = {
     "Add Role",
     "View Employess",
     "View By Departments",
-    "View Roles",
+    "View By Roles",
     "Update Employee Role",
   ],
 };
@@ -191,7 +191,26 @@ function viewByDepartments() {
 function viewByRoles() {
   connection.query("SELECT title FROM role", function (err, results) {
     if (err) throw err;
-    console.table(results);
+    inquirer
+      .prompt([
+        {
+          name: "viewByRole",
+          type: "list",
+          message: "Which role would you like to view?",
+          choices: function () {
+            var choiceArray = [];
+            for (var i = 0; i < results.length; i++) {
+              choiceArray.push(results[i].title);
+            }
+            return choiceArray;
+          },
+        },
+      ])
+      .then((response) => {
+        console.log(response);
+      });
   });
 }
 function UpdateEmployeeRoles() {}
+
+// Need to figure out how to link all of this information to one main table. Also need to know how to delete information from server.
