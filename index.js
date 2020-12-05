@@ -50,13 +50,25 @@ function initialQuestion() {
         viewByRoles();
         break;
       case "Update Employee Role":
-        viewUpdateEmployeeRoles();
+        updateEmployeeRoles();
         break;
     }
   });
 }
 
 function addEmployee() {
+  var managerArray = [];
+  connection.query("SELECT * FROM employee", function (err, results) {
+    if (err) throw err;
+    for (var i = 0; i < results.length; i++) {
+      let obj = {
+        name: results[i].first_name,
+        value: results[i].id,
+      };
+
+      managerArray.push(obj);
+    }
+  });
   connection.query("SELECT * FROM role", function (err, results) {
     if (err) throw err;
 
@@ -79,16 +91,25 @@ function addEmployee() {
           choices: function () {
             var choiceArray = [];
             for (var i = 0; i < results.length; i++) {
-              choiceArray.push(results[i].title);
+              let obj = {
+                name: results[i].title,
+                value: results[i].id,
+              };
+
+              choiceArray.push(obj);
             }
             return choiceArray;
           },
         },
-        //   {
-        //     name: "manager",
-        //     type: "list",
-        //     message: "Who is the employee's manager",
-        //   },
+
+        {
+          name: "manager",
+          type: "list",
+          message: "Who is the employee's manager",
+          choices: function () {
+            return managerArray;
+          },
+        },
       ])
       .then((response) => {
         connection.query(
@@ -96,6 +117,8 @@ function addEmployee() {
           {
             first_name: response.firstName,
             last_name: response.lastName,
+            role_id: response.role,
+            manager_id: response.manager,
           },
 
           function (err) {
@@ -211,6 +234,6 @@ function viewByRoles() {
       });
   });
 }
-function UpdateEmployeeRoles() {}
+function updateEmployeeRoles() {}
 
 // Need to figure out how to link all of this information to one main table. Also need to know how to delete information from server.
