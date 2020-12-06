@@ -10,6 +10,9 @@ VALUES('Law');
 INSERT INTO department (name)
 VALUES('Accounting');
 
+INSERT INTO department (name)
+VALUES('Finance');
+
 INSERT INTO role (title, salary, department_id)
 VALUES('Sales Lead', 100000.00, 1);
 
@@ -25,7 +28,15 @@ VALUES('Lawyer', 135000.00, 3);
 INSERT INTO role (title, salary, department_id)
 VALUES('Software Engineer', 115000.00, 2);
 
-
 INSERT INTO role (title, salary, department_id)
 VALUES('Accountant', 75000.00, 4);
+
+INSERT INTO role (title, salary, department_id)
+VALUES('Legal Lead Team', 150000.00, 3);
+
+INSERT INTO role (title, salary, department_id)
+VALUES('Consultant', 78000.00, 4);
+
+INSERT INTO role (title, salary, department_id)
+VALUES('Financial Advisor', 75000.00, 5);
 
