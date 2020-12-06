@@ -8,7 +8,6 @@ CREATE TABLE department(
 id INT PRIMARY KEY AUTO_INCREMENT
 ,name VARCHAR(30)
 );
-
 CREATE TABLE role(
 id INT PRIMARY KEY AUTO_INCREMENT
 ,title VARCHAR(30) 
@@ -17,7 +16,7 @@ id INT PRIMARY KEY AUTO_INCREMENT
 INDEX `index_department`(department_id),
 CONSTRAINT `FK_char_department`
 FOREIGN KEY (department_id)
-REFERENCES department(id) ON UPDATE CASCADE ON DELETE RESTRICT
+REFERENCES department(id) ON DELETE CASCADE 
 );
 
 CREATE TABLE employee (
@@ -28,6 +27,8 @@ id INT PRIMARY KEY AUTO_INCREMENT
 INDEX `index_role`(role_id),
 CONSTRAINT `FK_char_role`
 FOREIGN KEY (role_id)
-REFERENCES role(id) ON UPDATE CASCADE ON DELETE RESTRICT
-,manager_id INT
+REFERENCES role(id) ON DELETE CASCADE 
+,manager_id INT,
+FOREIGN KEY (manager_id)
+REFERENCES employee (id)
 );

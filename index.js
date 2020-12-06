@@ -25,6 +25,7 @@ const firstQuestion = {
     "View By Departments",
     "View By Roles",
     "Update Employee Role",
+    "Quit",
   ],
 };
 
@@ -52,12 +53,15 @@ function init() {
       case "Update Employee Role":
         updateEmployeeRoles();
         break;
+      case "Quit":
+        quit();
+        break;
     }
   });
 }
 
 function addEmployee() {
-  var managerArray = [];
+  var managerArray = ["None"];
   connection.query("SELECT * FROM employee", function (err, results) {
     if (err) throw err;
     for (var i = 0; i < results.length; i++) {
@@ -112,21 +116,40 @@ function addEmployee() {
         },
       ])
       .then((response) => {
-        connection.query(
-          "INSERT INTO employee SET ?",
-          {
-            first_name: response.firstName,
-            last_name: response.lastName,
-            role_id: response.role,
-            manager_id: response.manager,
-          },
+        if (response.manager === "None") {
+          connection.query(
+            "INSERT INTO employee SET ?",
 
-          function (err) {
-            if (err) throw err;
-            console.log("The Employee has been added to the Database");
-            init();
-          }
-        );
+            {
+              first_name: response.firstName,
+              last_name: response.lastName,
+              role_id: response.role,
+            },
+
+            function (err) {
+              if (err) throw err;
+              console.log("The Employee has been added to the Database");
+              init();
+            }
+          );
+        } else {
+          connection.query(
+            "INSERT INTO employee SET ?",
+
+            {
+              first_name: response.firstName,
+              last_name: response.lastName,
+              role_id: response.role,
+              manager_id: response.manager,
+            },
+
+            function (err) {
+              if (err) throw err;
+              console.log("The Employee has been added to the Database");
+              init();
+            }
+          );
+        }
       });
   });
 }
@@ -202,7 +225,19 @@ function addRole() {
 }
 function viewEmployees() {
   connection.query(
-    "SELECT t1.first_name, t1.last_name, t2.title, t3.name FROM employee AS t1 JOIN role AS t2 ON t1.role_id=t2.id JOIN department AS t3 ON t2.department_id=t3.id",
+    `SELECT 
+        concat(emp.first_name, ' ',emp.last_name) AS Employee
+        ,rl.title AS Title
+        ,rl.salary AS Salary
+        ,dept.name AS Department
+        ,concat(mgr.first_name,' ',mgr.last_name) as Manager
+    FROM employee AS emp 
+        JOIN role AS rl 
+            ON emp.role_id=rl.id 
+        JOIN department AS dept 
+            ON rl.department_id=dept.id
+        LEFT JOIN employee AS mgr 
+            ON emp.manager_id=mgr.id `,
     function (err, results) {
       if (err) throw err;
       console.table(results);
@@ -231,8 +266,19 @@ function viewByDepartments() {
       .then((response) => {
         var optionSelected = response.viewByDept;
         var sql =
-          "SELECT t1.first_name, t1.last_name, t2.title, t3.name FROM employee AS t1 JOIN role AS t2 ON t1.role_id=t2.id JOIN department AS t3 ON t2.department_id=t3.id  WHERE t3.name =" +
-          connection.escape(optionSelected);
+          `SELECT
+          concat(emp.first_name, ' ',emp.last_name) AS Employee
+          ,rl.title AS Title
+          ,dept.name AS Department 
+          ,concat(mgr.first_name,' ',mgr.last_name) as Manager
+          FROM employee AS emp 
+          LEFT JOIN employee AS mgr 
+            ON emp.manager_id=mgr.id
+          JOIN role AS rl 
+            ON emp.role_id=rl.id 
+        JOIN department AS dept 
+            ON rl.department_id=dept.id  
+        WHERE dept.name =` + connection.escape(optionSelected);
         connection.query(sql, function (err, results) {
           if (err) throw err;
           console.table(results);
@@ -262,8 +308,19 @@ function viewByRoles() {
       .then((response) => {
         var optionSelected = response.viewByRole;
         var sql =
-          "SELECT employee.first_name, employee.last_name, role.title FROM employee INNER JOIN role ON employee.role_id=role.id  WHERE role.title =" +
-          connection.escape(optionSelected);
+          `SELECT
+          concat(emp.first_name, ' ',emp.last_name) AS Employee
+          ,rl.title AS Title
+          ,dept.name AS Department 
+          ,concat(mgr.first_name,' ',mgr.last_name) as Manager
+          FROM employee AS emp 
+          LEFT JOIN employee AS mgr 
+            ON emp.manager_id=mgr.id
+          JOIN role AS rl 
+            ON emp.role_id=rl.id 
+            JOIN department AS dept 
+            ON rl.department_id=dept.id  
+        WHERE rl.title =` + connection.escape(optionSelected);
         connection.query(sql, function (err, results) {
           if (err) throw err;
           console.table(results);
@@ -272,6 +329,56 @@ function viewByRoles() {
       });
   });
 }
-function updateEmployeeRoles() {}
 
+function quit() {
+  connection.end();
+}
+function updateEmployeeRoles() {
+  var employeeArray = [];
+  connection.query("SELECT * FROM employee", function (err, results) {
+    if (err) throw err;
+    for (var i = 0; i < results.length; i++) {
+      let obj = {
+        name: results[i].first_name,
+        value: results[i].id,
+      };
+
+      employeeArray.push(obj);
+    }
+  });
+  connection.query("SELECT * FROM role", function (err, results) {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "list",
+          message: "Which employee's role would you like to update?",
+          choices: function () {
+            return employeeArray;
+          },
+        },
+        {
+          name: "role",
+          type: "list",
+          message: "What is the employee's new role",
+          choices: function () {
+            var choiceArray = [];
+            for (var i = 0; i < results.length; i++) {
+              let obj = {
+                name: results[i].title,
+                value: results[i].id,
+              };
+
+              choiceArray.push(obj);
+            }
+            return choiceArray;
+          },
+        },
+      ])
+      .then((response) => {
+        console.log(response);
+      });
+  });
+}
 // Need to figure out how to link all of this information to one main table. Also need to know how to delete information from server.
