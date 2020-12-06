@@ -377,7 +377,15 @@ function updateEmployeeRoles() {
         },
       ])
       .then((response) => {
-        console.log(response);
+        connection.query(
+          "UPDATE employee SET role_id = ? WHERE id = ?",
+          [response.role, response.employee],
+          function (err) {
+            if (err) throw err;
+            console.log("The role for this employee has been updated");
+            init();
+          }
+        );
       });
   });
 }
