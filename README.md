@@ -30,7 +30,11 @@ npm i
 
 ## Usage
 
-1. Open integrated terminal <br /> 2. Run node index.js 3. Follow the questions being prompted.
+1. Open integrated terminal
+   <br />
+2. Run node index.js
+   <br/>
+3. Follow the questions being prompted.
 
 ## Contribution
 
@@ -38,7 +42,11 @@ None
 
 ## Test
 
-1. Open integrated terminal <br /> 2. Run node index.js <br />3. Follow the questions being prompted.
+1. Open integrated terminal
+   <br />
+2. Run node index.js
+   <br />
+3. Follow the questions being prompted.
 
 ## For any additional questions please contact me at:
 
